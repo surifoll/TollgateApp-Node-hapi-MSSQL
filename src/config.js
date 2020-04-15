@@ -23,7 +23,7 @@ assert( HOST, "HOST configuration is required." );
 assert( HOST_URL, "HOST_URL configuration is required." );
 assert( COOKIE_ENCRYPT_PWD, "COOKIE_ENCRYPT_PWD configuration is required." );
 assert( SQL_SERVER, "SQL_SERVER configuration is required." );
-assert( SQL_DATABASE, "SQL_DATABASE configuration is required." );
+//assert( SQL_DATABASE, "SQL_DATABASE configuration is required." );
 assert( SQL_USER, "SQL_USER configuration is required." );
 assert( SQL_PASSWORD, "SQL_PASSWORD configuration is required." );
 assert( OKTA_ORG_URL, "OKTA_ORG_URL configuration is required." );
