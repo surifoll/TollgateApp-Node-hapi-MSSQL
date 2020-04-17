@@ -1,5 +1,6 @@
 "use strict";
 const boom = require('boom');
+const tokenUtil = require('../token')
 
 module.exports.register = async server => {
     server.route({
@@ -9,6 +10,9 @@ module.exports.register = async server => {
             description: 'Get books list',
             notes: 'Returns an array of books',
             tags: ['api'],
+            pre: [
+                { method: tokenUtil.authorizer, assign: 'm1' }
+            ],
             handler: async request => {
                 try {
                     // get the sql client registered as a plugin
@@ -31,17 +35,20 @@ module.exports.register = async server => {
     });
     server.route({
         method: "GET",
-        path: "/api/wallets/user/{userId}",
+        path: "/api/wallets/user",
         config: {
             description: 'Get books list',
             notes: 'Returns an array of books',
             tags: ['api'],
+            pre: [
+                { method: tokenUtil.authorizer, assign: 'm1' }
+            ],
             handler: async request => {
                 try {
                     // get the sql client registered as a plugin
                     const db = request.server.plugins.sql.client;
                     // TODO: Get the current authenticate wallet's ID
-                    const walletId = request.params.userId;
+                    const walletId = request.user.UserId;
                     // execute the query
                     const res = await db.wallets.getWalletByUserId(walletId);
                     console.log(res);
@@ -64,12 +71,14 @@ module.exports.register = async server => {
             description: 'Get books list',
             notes: 'Returns an array of books',
             tags: ['api'],
+            pre: [
+                { method: tokenUtil.authorizer, assign: 'm1' }
+            ],
             handler: async (request, h) => {
                 try {
                     // get the sql client registered as a plugin
                     const db = request.server.plugins.sql.client;
                     // TODO: Get the current authenticate wallet's ID
-                    console.log(db);
 
                     // execute the query
                     const res = await db.wallets.getAllWallets();
@@ -87,11 +96,15 @@ module.exports.register = async server => {
         method: "POST",
         path: "/api/wallets",
         config: {
+            pre: [
+                { method: tokenUtil.authorizer, assign: 'm1' }
+            ],
             handler: async (request, h) => {
                 try {
                     const db = request.server.plugins.sql.client;
 
                     const payload = request.payload;
+                    payload.UserId = request.user.UserId;
                     const user = await db.users.getUsers(payload.UserId);
 
                     if (user.recordset.length == 0) {
@@ -116,10 +129,9 @@ module.exports.register = async server => {
         method: "PUT",
         path: "/api/wallets/{id}",
         config: {
-            // auth: {
-            //     strategy: "session",
-            //     mode: "required"
-            // },
+            pre: [
+                { method: tokenUtil.authorizer, assign: 'm1' }
+            ],
             handler: async (request, h) => {
                 try {
                     const db = request.server.plugins.sql.client;
@@ -150,6 +162,9 @@ module.exports.register = async server => {
         method: "DELETE",
         path: "/api/wallets/{id}",
         config: {
+            pre: [
+                { method: tokenUtil.authorizer, assign: 'm1' }
+            ],
             handler: async (request, h) => {
                 try {
                     const db = request.server.plugins.sql.client;

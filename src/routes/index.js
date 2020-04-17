@@ -1,6 +1,7 @@
 "use strict";
 
 const api = require("./controllers");
+
 module.exports.register = async server => {
     // register api routes
     await api.register(server);

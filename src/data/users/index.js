@@ -6,7 +6,6 @@ const register = async ({ sql, getConnection }) => {
     const getUsers = async userId => {
         // get a connection to SQL Server
         const cnx = await getConnection();
-        // console.log(cnx);
 
         // create a new request
         const request = await cnx.request();
@@ -14,6 +13,18 @@ const register = async ({ sql, getConnection }) => {
         request.input("userId", sql.VarChar(50), userId);
         // return the executed query
         return request.query(sqlQueries.getUsers);
+    };
+    const getUserByUsername = async username => {
+        // get a connection to SQL Server
+        const cnx = await getConnection();
+        // console.log(cnx);
+
+        // create a new request
+        const request = await cnx.request();
+        // configure sql query parameters
+        request.input("Username", sql.VarChar(50), username);
+        // return the executed query
+        return request.query(sqlQueries.getUserByUsername);
     };
     const getAllUsers = async () => {
         // get a connection to SQL Server
@@ -86,7 +97,8 @@ const register = async ({ sql, getConnection }) => {
         insertUser,
         updateUser,
         deleteUser,
-        getAllUsers
+        getAllUsers,
+        getUserByUsername
     };
 };
 module.exports = { register };

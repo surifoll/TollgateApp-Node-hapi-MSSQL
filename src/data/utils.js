@@ -1,10 +1,11 @@
 "use strict";
 const fse = require("fs-extra");
 const { join } = require("path");
+const bcrypt = require('bcrypt');
 
 let PayStack = require('paystack-node')
 
-let APIKEY = 'sk_test_XXXXXXXXXXXXXXXXXXXXXXXXXXXXX' //better asw environment variable loging to paystack to get your api key
+let APIKEY = 'sk_test_a04305c902fd871af1519c5fc990e712a0ab136b' //better asw environment variable loging to paystack to get your api key
 //const environment = process.env.NODE_ENV
 
 const paystack = new PayStack(APIKEY, 'dev')
@@ -83,11 +84,25 @@ const createCustomer = async (userModel) => {
         return res.status(200).json({ id: body.data.id })
     });
 }
+const  hashPassword = async (password) =>{
+    // Generate a salt at level 10 strength
+   
+    
+    var salt = await bcrypt.genSalt(10);
+   
+    var  hash = bcrypt.hash(password, salt, null);
+
+    console.log(hash,'lllllllllllllll');
+    
+    return hash;
+
+}
 module.exports = {
     loadSqlQueries,
     utilities: {
         uuid,
         initializePayment,
-        verifyPayment
+        verifyPayment,
+        hashPassword
     }
 };

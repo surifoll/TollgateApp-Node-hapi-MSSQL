@@ -1,6 +1,7 @@
 "use strict";
 const boom = require('boom');
-const utils = require('../../data/utils')
+const utils = require('../../data/utils');
+const tokenUtil = require('../token');
 
 module.exports.register = async server => {
     server.route({
@@ -10,7 +11,10 @@ module.exports.register = async server => {
             description: 'Get books list',
             notes: 'Returns an array of books',
             tags: ['api'],
-            handler: async request => {
+            pre: [
+                { method: tokenUtil.authorizer, assign: 'm1' }
+            ],
+             handler: async request => {
                 try {
                     // get the sql client registered as a plugin
                     const db = request.server.plugins.sql.client;
@@ -34,22 +38,25 @@ module.exports.register = async server => {
     });
     server.route({
         method: "GET",
-        path: "/api/paymentHistories/user/{userId}",
+        path: "/api/paymentHistories/user",
         config: {
             description: 'Get books list',
             notes: 'Returns an array of books',
             tags: ['api'],
-            handler: async request => {
+            pre: [
+                { method: tokenUtil.authorizer, assign: 'm1' }
+            ],
+             handler: async request => {
                 try {
                     // get the sql client registered as a plugin
                     const db = request.server.plugins.sql.client;
                     // TODO: Get the current authenticate paymentHistory's ID
-                    const paymentHistoryId = request.params.userId;
+                    const userId = request.user.UserId;
                     // execute the query
-                    const res = await db.paymentHistories.getPaymentHistoryByUserId(paymentHistoryId);
+                    const res = await db.paymentHistories.getPaymentHistoryByUserId(userId);
                     console.log(res);
                     if (res.recordset.length == 0) {
-                        return (boom.notFound(`No record found for the id ${paymentHistoryId}`));
+                        return (boom.notFound(`No record found for the id ${userId}`));
                     }
                     // return the recordset object
                     return res.recordset[0];
@@ -67,6 +74,9 @@ module.exports.register = async server => {
             description: 'Get books list',
             notes: 'Returns an array of books',
             tags: ['api'],
+            pre: [
+                { method: tokenUtil.authorizer, assign: 'm1' }
+            ],
             handler: async (request, h) => {
                 try {
                     // get the sql client registered as a plugin
@@ -97,20 +107,23 @@ module.exports.register = async server => {
             //     strategy: "session",
             //     mode: "required"
             // },
+            pre: [
+                { method: tokenUtil.authorizer, assign: 'm1' }
+            ],
             handler: async (request, h) => {
                 try {
                     const db = request.server.plugins.sql.client;
                     const payload = request.payload;
                     var transactionReference = utils.utilities.uuid();
                     payload.CreatedDate = new Date();
-                    const user = await db.users.getUsers(payload.UserId);
+                    const user = request.user;
 
-                    if (user.recordset.length == 0) {
-                        return (boom.notFound(`No record found for the user id ${payload.UserId}`));
+                    if (!user) {
+                        return (boom.notFound(`No record found for the user id ${user.UserId}`));
                     }
 
                     // Initialize paystack payment
-                    var response = await utils.utilities.initializePayment({ email: user.recordset[0].Email, amount: 5000000, ref: transactionReference, firstName: 'suraj', lastName: 'fehintola' });
+                    var response = await utils.utilities.initializePayment({ email: user.Email, amount: 5000000, ref: transactionReference, firstName: 'suraj', lastName: 'fehintola' });
 
                     var resp = response.body;
 
@@ -135,8 +148,10 @@ module.exports.register = async server => {
         method: "POST",
         path: "/api/paymentHistories/verify/{ref}",
         config: {
-            
-            handler: async (request, h) => {
+            pre: [
+                { method: tokenUtil.authorizer, assign: 'authMethod' }
+            ],
+             handler: async (request, h) => {
                 try {
                     const db = request.server.plugins.sql.client;
                     const payload = request.payload;
@@ -148,10 +163,11 @@ module.exports.register = async server => {
                     if (paymentExists.rowsAffected[0] === 1) {
                         return (boom.badRequest(`Verification failed for ref ${transactionReference}`));
                     }
-                    const user = await db.users.getUsers(payload.UserId);
-
-                    if (user.recordset.length == 0) {
-                        return (boom.notFound(`No record found for the user id ${payload.UserId}`));
+                    
+                    const user = request.user
+                    payload.UserId = user.UserId;
+                    if (!user) {
+                        return (boom.notFound(`No record found for the user id ${user.UserId}`));
                     }
 
                     // Verifying a transaction
@@ -163,8 +179,8 @@ module.exports.register = async server => {
                             {
                                 AvailableBalance: payload.Amount,
                                 Amount: payload.Amount,
-                                UserId: user.recordset[0].UserId,
-                                LastUpdatedDate: new Date(),
+                                UserId: user.UserId,
+                                LastUpdatedDate: null,
                                 CreatedDate: new Date()
                             });
 
@@ -197,7 +213,9 @@ module.exports.register = async server => {
         method: "DELETE",
         path: "/api/paymentHistories/{id}",
         config: {
-
+            pre: [
+                { method: tokenUtil.authorizer, assign: 'm1' }
+            ],
             handler: async (request, h) => {
                 try {
                     const db = request.server.plugins.sql.client;

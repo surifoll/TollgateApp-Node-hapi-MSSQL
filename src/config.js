@@ -14,7 +14,8 @@ const { PORT,
    SQL_PASSWORD,
    OKTA_ORG_URL,
    OKTA_CLIENT_ID,
-   OKTA_CLIENT_SECRET
+   OKTA_CLIENT_SECRET,
+   SECRET
 } = process.env;
 const sqlEncrypt = process.env.SQL_ENCRYPT === "true";
 // validate the required configuration information
@@ -48,5 +49,6 @@ module.exports = {
        url: OKTA_ORG_URL,
        clientId: OKTA_CLIENT_ID,
        clientSecret: OKTA_CLIENT_SECRET
-   }
+   },
+   secret: SECRET
 };

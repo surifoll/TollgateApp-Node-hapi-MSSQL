@@ -1,5 +1,6 @@
 "use strict";
 const boom = require('boom');
+const tokenUtil = require('../token');
 
 module.exports.register = async server => {
     server.route({
@@ -9,6 +10,9 @@ module.exports.register = async server => {
             description: 'Get books list',
             notes: 'Returns an array of books',
             tags: ['api'],
+            pre: [
+                { method: tokenUtil.authorizer, assign: 'm1' }
+            ],
             handler: async request => {
                 try {
                     // get the sql client registered as a plugin
@@ -18,7 +22,7 @@ module.exports.register = async server => {
                     const passingHistoryId = request.params.id;
 
                     // execute the query
-                    const res = await db.passingHistories.getPaymentHistory(passingHistoryId);
+                    const res = await db.passingHistories.getPassingHistory(passingHistoryId);
                     if (res.recordset.length == 0) {
                         return (boom.notFound(`No record found for the id ${passingHistoryId}`));
                     }
@@ -38,6 +42,9 @@ module.exports.register = async server => {
             description: 'Get books list',
             notes: 'Returns an array of books',
             tags: ['api'],
+            pre: [
+                { method: tokenUtil.authorizer, assign: 'm1' }
+            ],
             handler: async request => {
                 try {
                     // get the sql client registered as a plugin
@@ -45,7 +52,7 @@ module.exports.register = async server => {
                     // TODO: Get the current authenticate passingHistory's ID
                     const passingHistoryId = request.params.userId;
                     // execute the query
-                    const res = await db.passingHistories.getPaymentHistoryByUserId(passingHistoryId);
+                    const res = await db.passingHistories.getPassingHistoryByUserId(passingHistoryId);
                     console.log(res);
                     if (res.recordset.length == 0) {
                         return (boom.notFound(`No record found for the id ${passingHistoryId}`));
@@ -66,6 +73,9 @@ module.exports.register = async server => {
             description: 'Get books list',
             notes: 'Returns an array of books',
             tags: ['api'],
+            pre: [
+                { method: tokenUtil.authorizer, assign: 'm1' }
+            ],
             handler: async (request, h) => {
                 try {
                     // get the sql client registered as a plugin
@@ -74,7 +84,7 @@ module.exports.register = async server => {
                     console.log(db);
 
                     // execute the query
-                    const res = await db.passingHistories.getAllPaymentHistories();
+                    const res = await db.passingHistories.getAllPassingHistories();
                     // return the recordset object
                     return res.recordset;
                 } catch (err) {
@@ -89,6 +99,9 @@ module.exports.register = async server => {
         method: "POST",
         path: "/api/passingHistories",
         config: {
+            pre: [
+                { method: tokenUtil.authorizer, assign: 'm1' }
+            ],
             handler: async (request, h) => {
                 try {
                     const db = request.server.plugins.sql.client;
@@ -100,7 +113,7 @@ module.exports.register = async server => {
                     }
 
                     payload.CreatedDate = new Date();
-                    const res = await db.passingHistories.insertPaymentHistory(payload);
+                    const res = await db.passingHistories.insertPassingHistory(payload);
                     console.log(res);
 
 
@@ -120,17 +133,20 @@ module.exports.register = async server => {
         method: "PUT",
         path: "/api/passingHistories/{id}",
         config: {
+            pre: [
+                { method: tokenUtil.authorizer, assign: 'm1' }
+            ],
             handler: async (request, h) => {
                 try {
                     const db = request.server.plugins.sql.client;
                     const payload = request.payload;
                     const id = request.params.id;
-                    const resp = await db.passingHistories.getPaymentHistory(id);
+                    const resp = await db.passingHistories.getPassingHistory(id);
                     if (resp.recordset.length == 0)
                         return (boom.notFound(`No record found for the id ${id}`));
 
                     payload.Id = id;
-                    const res = await db.passingHistories.updatePaymentHistory(payload);
+                    const res = await db.passingHistories.updatePassingHistory(payload);
                     console.log(res);
 
                     if (res.rowsAffected[0] === 1)
@@ -149,15 +165,18 @@ module.exports.register = async server => {
         method: "DELETE",
         path: "/api/passingHistories/{id}",
         config: {
+            pre: [
+                { method: tokenUtil.authorizer, assign: 'm1' }
+            ],
             handler: async (request, h) => {
                 try {
                     const db = request.server.plugins.sql.client;
                     const id = request.params.id;
-                    const resp = await db.passingHistories.getPaymentHistory(id);
+                    const resp = await db.passingHistories.getPassingHistory(id);
                     if (resp.recordset.length == 0)
                         return (boom.notFound(`No record found for the id ${id}`));
 
-                    const res = await db.passingHistories.deletePaymentHistory({ id });
+                    const res = await db.passingHistories.deletePassingHistory({ id });
                     if (res.rowsAffected[0] === 1)
                         return h.response({ 'message': 'Deleted successfully' }).code(200)
                 } catch (err) {

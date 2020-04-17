@@ -1,5 +1,6 @@
 "use strict";
 const boom = require('boom');
+const tokenUtil = require('../token');
 
 module.exports.register = async server => {
     server.route({
@@ -9,6 +10,9 @@ module.exports.register = async server => {
             description: 'Get books list',
             notes: 'Returns an array of books',
             tags: ['api'],
+            pre: [
+                { method: tokenUtil.authorizer, assign: 'm1' } 
+            ],
             handler: async request => {
                 try {
                     // get the sql client registered as a plugin
@@ -36,14 +40,17 @@ module.exports.register = async server => {
             description: 'Get books list',
             notes: 'Returns an array of books',
             tags: ['api'],
+            pre: [
+                { method: tokenUtil.authorizer, assign: 'm1' } 
+            ],
             handler: async request => {
                 try {
                     // get the sql client registered as a plugin
                     const db = request.server.plugins.sql.client;
                     // TODO: Get the current authenticate vehicle's ID
-                    const vehicleId = request.params.userId;
+                    const userId = request.user.UserId;
                     // execute the query
-                    const res = await db.vehicles.getVehicleByUserId(vehicleId);
+                    const res = await db.vehicles.getVehicleByUserId(userId);
                     console.log(res);
                     if (res.recordset.length == 0) {
                         return (boom.notFound(`No record found for the id ${vehicleId}`));
@@ -64,6 +71,9 @@ module.exports.register = async server => {
             description: 'Get books list',
             notes: 'Returns an array of books',
             tags: ['api'],
+            pre: [
+                { method: tokenUtil.authorizer, assign: 'm1' } 
+            ],
             handler: async (request, h) => {
                 try {
                     // get the sql client registered as a plugin
@@ -87,6 +97,9 @@ module.exports.register = async server => {
         method: "POST",
         path: "/api/vehicles",
         config: {
+            pre: [
+                { method: tokenUtil.authorizer, assign: 'm1' } 
+            ],
           handler: async (request, h) => {
                 try {
                     const db = request.server.plugins.sql.client;
@@ -115,7 +128,9 @@ module.exports.register = async server => {
         method: "PUT",
         path: "/api/vehicles/{id}",
         config: {
-           
+            pre: [
+                { method: tokenUtil.authorizer, assign: 'm1' } 
+            ],
             handler: async (request,h) => {
                 try {
                     const db = request.server.plugins.sql.client;
@@ -145,8 +160,9 @@ module.exports.register = async server => {
         method: "DELETE",
         path: "/api/vehicles/{id}",
         config: {
-
-           
+            pre: [
+                { method: tokenUtil.authorizer, assign: 'm1' } 
+            ],
             handler: async (request, h) => {
                 try {
                     const db = request.server.plugins.sql.client;

@@ -10,5 +10,5 @@ VALUES
     @UserId,
     @AvailableBalance,
     CAST(@CreatedDate AS DateTime2),
-    CAST(@LastUpdatedDate AS DateTime2)
+     
   )
