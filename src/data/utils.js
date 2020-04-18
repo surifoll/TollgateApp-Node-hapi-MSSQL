@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 
 let PayStack = require('paystack-node')
 
-let APIKEY = 'sk_test_a04305c902fd871af1519c5fc990e712a0ab136b' //better asw environment variable loging to paystack to get your api key
+let APIKEY = 'sk_test_****************' //better asw environment variable loging to paystack to get your api key
 //const environment = process.env.NODE_ENV
 
 const paystack = new PayStack(APIKEY, 'dev')
